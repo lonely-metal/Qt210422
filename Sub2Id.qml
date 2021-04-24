@@ -1,19 +1,10 @@
-/*
-  210403:
-  QMLとC++のバインディング
-
-  https://qiita.com/DAR/items/400a1725ddedcaa6ef0e
-
-  Signal & Slot
-  C++でConnect
-*/
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.0
 
 Rectangle {
-    width: 640
-    height: 480
+    width: windowWidth
+    height: windowHeight
     visible: false
     state: "sub2State"
     color: backGroundColor
@@ -27,7 +18,7 @@ Rectangle {
     Button{
         id: prevButton
         text: "<"
-        x: 200; y: 10
+        x: 150; y: 10
         onClicked:{
             fileNameKey--
             if(fileNameKey < 0){
@@ -38,7 +29,7 @@ Rectangle {
     Button{
         id: nextButton
         text: ">"
-        x: 400; y: 10
+        x: 300; y: 10
         onClicked:{
             fileNameKey++
             if(fileNameKey >= filesMax){
@@ -46,11 +37,43 @@ Rectangle {
             }
         }
     }
-    Text{
-        x: 10; y: 80
-        text: "index: " + fileNameKey
+    ComboBox{
+        x: 450; y: 10
+        model: fileNames
+        onCurrentIndexChanged:{
+            fileNameKey = currentIndex
+        }
+    }
+    CheckBox{
+        x: 700; y: 10
+        text: "Shuffle"
+        onCheckedChanged:{
+            if(checked){
+                shuffleComboVisible = true
+            }else{
+                shuffleComboVisible = false
+            }
+            console.log("shuffleWaitTime " + shuffleWaitTime)
+            setShuffleWaitTimeSignal(shuffleComboVisible, shuffleWaitTime)
+            //setShuffleWaitTimeSignal()
+        }
+    }
+    ComboBox{
+        x: 800; y: 10
+        width: 70
+        visible: shuffleComboVisible
+        model: waitTimes
+        onCurrentIndexChanged:{
+            shuffleWaitTime = waitTimes[currentIndex]
+            console.log("shuffleWaitTime " + shuffleWaitTime)
+            setShuffleWaitTimeRestartSignal(shuffleWaitTime)
+        }
     }
 
+    Text{
+        x: 10; y: 80
+        text: fileNames[fileNameKey]
+    }
     Image{
         x:10; y:100
         source: "image://imagedata/" + fileNames[fileNameKey] ;

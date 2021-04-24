@@ -1,12 +1,3 @@
-/*
-  210403:
-  QMLとC++のバインディング
-
-  https://qiita.com/DAR/items/400a1725ddedcaa6ef0e
-
-  Signal & Slot
-  C++でConnect
-*/
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
@@ -14,27 +5,36 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
 Rectangle {
-    width: 640
-    height: 480
+    width: windowWidth
+    height: windowHeight
     visible: false
     state: "sub1State"
     color: backGroundColor
 
+    TextInput{
+        id: folderName
+        x:150; y:10
+        color: "#FFFFFF"
+    }
     Button{
         id: prevButtonToMain
+        x:10; y: 80
         text: "Prev"
-        x: 10; y: 10
         onClicked: rectangle1.state = "mainState"
+    }
+    ComboBox{
+        id: folderSelect
+        x: 150; y: 80
     }
     Button{
         id: nextButtonToSub2
         text: "Next"
-        x: 200; y: 10
+        x: 350; y: 80
         onClicked: rectangle1.state = "sub2State"
     }
     GridLayout{
-        columns: 5
-        x:10; y:100
+        columns: windowWidth / 110
+        x:10; y:160
         Repeater{
             model: filesMax
             Rectangle{

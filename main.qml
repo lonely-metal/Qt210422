@@ -5,16 +5,23 @@
   Rpeater参考URL： https://doc.qt.io/archives/qtquick-components-symbian-1.1/examples-native-scalability-positioners-grid-layout.html
 
   210422 13:58
-  ついに思った通りの画像ビューワが完成！！
+  ついに思った通りの画像ビューワが完成
 
-  sub2IdにComboBox選択を追加する
+  210423 19:08
+  別スレッドから定期的にフォルダ監視する処理に成功
+
+  210424 15:56
+  シャッフル画像表示と表示時間の設定OK
 */
 import QtQuick 2.12
 import QtQuick.Window 2.12
 
 Window {
-    width: 640
-    height: 480
+    property int windowWidth: 1280
+    property int windowHeight: 720
+
+    width: windowWidth
+    height: windowHeight
     visible: true
 
     property string backGroundColor: "#aaaaaa"
@@ -24,15 +31,29 @@ Window {
     property bool imageVisible: false
 
     signal mainToSub1ButtonSignal();
+    signal quitButtonSignal();
+
+    property bool shuffleComboVisible: false
+    property int shuffleWaitTime: 5
+    property var waitTimes: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+    signal setShuffleWaitTimeSignal(bool shuffleComboVisible, int shuffleWaitTime);
+    signal setShuffleWaitTimeRestartSignal(int shuffleWaitTime);
+    signal sleepSignal(int msec)
+    //signal setShuffleWaitTimeSignal();
 
     function getFileNames(obj) {
         fileNames = obj
         for (var key in obj) {
-            console.log(key, fileNames[key]);
+            //console.log(key, fileNames[key]);
         }
         filesMax = fileNames.length
-        console.log(filesMax)
+        //console.log(filesMax)
         imageVisible = true
+    }
+    function shufflePlay() {
+        fileNameKey = Math.random() * 100000 % filesMax   // Math.random()で返ってくる値は1未満の小数なので100000くらい掛けとく
+        console.log("fileNameKey " + fileNameKey)
     }
 
     Rectangle {

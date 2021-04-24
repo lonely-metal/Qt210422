@@ -3,8 +3,8 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.0
 
 Rectangle{
-    width: 640
-    height: 480
+    width: windowWidth
+    height: windowHeight
     visible: true
     state: "mainState"
     color: backGroundColor
@@ -16,6 +16,14 @@ Rectangle{
         onClicked: {
             mainToSub1ButtonSignal()
             rectangle1.state = "sub1State"
+        }
+    }
+    Button{
+        id: quitButton
+        x: 10; y: 100
+        text: "Quit"
+        onClicked: {
+            quitButtonSignal()
         }
     }
 }

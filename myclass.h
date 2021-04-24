@@ -6,6 +6,7 @@
 #include <QQuickWindow>
 #include <QQuickView>
 #include <QThread>
+#include <QTimer>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -16,22 +17,64 @@
 
 #define DEBUG_LOG(fmt, ...) printf("[%s] %05d: "fmt, __FILE__, __LINE__, __VA_ARGS__);fflush(stdout)
 
+class MyThread;
+class ShuffleThread;
+
 class MyClass : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyClass(QGuiApplication& app, QObject* parent=0);
+    explicit MyClass(QObject* parent=0);
+    ~MyClass();
+    void initialize(QGuiApplication& app);
+    void invokeFileNames(QObject* object);
     void getFiles(const std::string& st, std::vector<std::string>& vec);
-    ~MyClass(){
-        DEBUG_LOG("MyClass end\n");
-    }
+    QObject* getMyObject();
+    void setMyObject(QObject* obj);
 
 public slots:
     void mainToSub1ButtonSlot();
+    void quitButtonSlot();
+    void setShuffleWaitTimeSlot(bool shuffleComboVisible, int shuffleWaitTime);
+    void setShuffleWaitTimeRestartSlot(int shuffleWaitTime);
+    void sleepSlot(int msec);
+
+    void folderSearchSlot();
+    void shufflePlaySlot();
 
 private:
-    QQmlApplicationEngine   mEngine;
-    QQuickWindow*           mpQmlWindow;
+    QGuiApplication*            mpApp;
+    QQmlApplicationEngine       mEngine;
+    QQuickWindow*               mpQmlWindow;
+    QObject*                    mpObj;
+    std::unique_ptr<MyThread>       mythread;
+    std::unique_ptr<ShuffleThread>  shufflethread;
+};
+
+class MyThread : public QThread
+{
+    Q_OBJECT
+public:
+    explicit MyThread(QObject* parent=0);
+    void initialize(MyClass* myclass);
+    void run();
+
+private:
+    std::shared_ptr<MyClass>    mpMyclass;
+};
+
+class ShuffleThread : public QThread
+{
+    Q_OBJECT
+public:
+    explicit ShuffleThread(QObject* parent=0);
+    void initialize(MyClass* myclass);
+    void run();
+    void setWaitTime(int waitTime);
+
+private:
+    std::shared_ptr<MyClass>    mpMyclass;
+    int                         mWaitTime;
 };
 
 #include <QQuickImageProvider>
