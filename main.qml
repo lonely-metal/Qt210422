@@ -40,7 +40,6 @@ Window {
     signal setShuffleWaitTimeSignal(bool shuffleComboVisible, int shuffleWaitTime);
     signal setShuffleWaitTimeRestartSignal(int shuffleWaitTime);
     signal sleepSignal(int msec)
-    //signal setShuffleWaitTimeSignal();
 
     function getFileNames(obj) {
         fileNames = obj

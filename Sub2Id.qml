@@ -9,11 +9,20 @@ Rectangle {
     state: "sub2State"
     color: backGroundColor
 
+    function shuffleCancel(){
+        shuffleCheck.checked = false
+        shuffleComboVisible = false
+        setShuffleWaitTimeSignal(shuffleComboVisible, shuffleWaitTime)
+    }
+
     Button{
         id: prevButtonToSub1
         text: "Prev"
         x: 10; y: 10
-        onClicked: rectangle1.state = "sub1State"
+        onClicked: {
+            rectangle1.state = "sub1State"
+            shuffleCancel()
+        }
     }
     Button{
         id: prevButton
@@ -24,6 +33,7 @@ Rectangle {
             if(fileNameKey < 0){
                 fileNameKey = filesMax - 1
             }
+            shuffleCancel()
         }
     }
     Button{
@@ -35,6 +45,7 @@ Rectangle {
             if(fileNameKey >= filesMax){
                 fileNameKey = 0
             }
+            shuffleCancel()
         }
     }
     ComboBox{
@@ -42,9 +53,11 @@ Rectangle {
         model: fileNames
         onCurrentIndexChanged:{
             fileNameKey = currentIndex
+            shuffleCancel()
         }
     }
     CheckBox{
+        id: shuffleCheck
         x: 700; y: 10
         text: "Shuffle"
         onCheckedChanged:{
@@ -55,7 +68,6 @@ Rectangle {
             }
             console.log("shuffleWaitTime " + shuffleWaitTime)
             setShuffleWaitTimeSignal(shuffleComboVisible, shuffleWaitTime)
-            //setShuffleWaitTimeSignal()
         }
     }
     ComboBox{
@@ -67,6 +79,14 @@ Rectangle {
             shuffleWaitTime = waitTimes[currentIndex]
             console.log("shuffleWaitTime " + shuffleWaitTime)
             setShuffleWaitTimeRestartSignal(shuffleWaitTime)
+        }
+    }
+    Button{
+        id: quitButton
+        x: 1000; y: 10
+        text: "Quit"
+        onClicked: {
+            quitButtonSignal()
         }
     }
 

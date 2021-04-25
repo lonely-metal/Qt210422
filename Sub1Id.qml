@@ -7,7 +7,7 @@ import QtQuick.Layouts 1.12
 Rectangle {
     width: windowWidth
     height: windowHeight
-    visible: false
+    visible: true
     state: "sub1State"
     color: backGroundColor
 
@@ -17,6 +17,7 @@ Rectangle {
         color: "#FFFFFF"
     }
     Button{
+        visible: false
         id: prevButtonToMain
         x:10; y: 80
         text: "Prev"
@@ -32,6 +33,15 @@ Rectangle {
         x: 350; y: 80
         onClicked: rectangle1.state = "sub2State"
     }
+    Button{
+        id: quitButton
+        x: 1000; y: 80
+        text: "Quit"
+        onClicked: {
+            quitButtonSignal()
+        }
+    }
+
     GridLayout{
         columns: windowWidth / 110
         x:10; y:160

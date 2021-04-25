@@ -5,7 +5,7 @@ import QtQuick.Controls 2.0
 Rectangle{
     width: windowWidth
     height: windowHeight
-    visible: true
+    visible: false
     state: "mainState"
     color: backGroundColor
 

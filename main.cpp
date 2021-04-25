@@ -12,8 +12,8 @@ int main(int argc, char *argv[])
 #endif
     QGuiApplication app(argc, argv);
 
-    MyClass myclass;
-    myclass.initialize(app);
+    MainClass mainclass;
+    mainclass.initialize(app);
 
     return app.exec();
 }

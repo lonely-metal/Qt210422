@@ -17,20 +17,20 @@
 
 #define DEBUG_LOG(fmt, ...) printf("[%s] %05d: "fmt, __FILE__, __LINE__, __VA_ARGS__);fflush(stdout)
 
-class MyThread;
+class FolderThread;
 class ShuffleThread;
 
-class MyClass : public QObject
+class MainClass : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyClass(QObject* parent=0);
-    ~MyClass();
+    explicit MainClass(QObject* parent=0);
+    ~MainClass();
     void initialize(QGuiApplication& app);
     void invokeFileNames(QObject* object);
     void getFiles(const std::string& st, std::vector<std::string>& vec);
-    QObject* getMyObject();
-    void setMyObject(QObject* obj);
+    QObject* getMainclassObject();
+    void setMainclassObject(QObject* obj);
 
 public slots:
     void mainToSub1ButtonSlot();
@@ -47,20 +47,20 @@ private:
     QQmlApplicationEngine       mEngine;
     QQuickWindow*               mpQmlWindow;
     QObject*                    mpObj;
-    std::unique_ptr<MyThread>       mythread;
-    std::unique_ptr<ShuffleThread>  shufflethread;
+    std::unique_ptr<FolderThread>       folderThread;
+    std::unique_ptr<ShuffleThread>  shuffleThread;
 };
 
-class MyThread : public QThread
+class FolderThread : public QThread
 {
     Q_OBJECT
 public:
-    explicit MyThread(QObject* parent=0);
-    void initialize(MyClass* myclass);
+    explicit FolderThread(QObject* parent=0);
+    void initialize(MainClass* mainclass);
     void run();
 
 private:
-    std::shared_ptr<MyClass>    mpMyclass;
+    std::shared_ptr<MainClass>    mpMainclass;
 };
 
 class ShuffleThread : public QThread
@@ -68,12 +68,12 @@ class ShuffleThread : public QThread
     Q_OBJECT
 public:
     explicit ShuffleThread(QObject* parent=0);
-    void initialize(MyClass* myclass);
+    void initialize(MainClass* mainclass);
     void run();
     void setWaitTime(int waitTime);
 
 private:
-    std::shared_ptr<MyClass>    mpMyclass;
+    std::shared_ptr<MainClass>    mpMainclass;
     int                         mWaitTime;
 };
 
