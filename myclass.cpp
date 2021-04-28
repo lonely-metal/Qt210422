@@ -1,6 +1,11 @@
 #include "myclass.h"
 
-std::string folderName {"E:\\work\\dvlp\\Qt\\images"};  // ２つ以上のクラスで使用してるので、とりあえずここで定義
+// ２つ以上のクラスで使用してるので、とりあえずここで定義
+QString folderName {"E:\\work\\dvlp\\Qt\\images"};
+//QString folderName {"E:\\Work\\携帯で撮ったやつ\\130826"};
+//QString folderName {"F:\\Work\\Data\\とりあえず"};
+//QString folderName {"F:\\Work\\Data\\とりあえず。。。"};    // 。。。があるとビルドエラーになる
+//std::string folderName {};
 
 MainClass::MainClass(QObject* parent)
 {
@@ -27,8 +32,8 @@ void MainClass::initialize(QGuiApplication& app)
 
     mpObj = qobject_cast<QObject*>(mEngine.rootObjects().first());
 
-    QObject::connect(mpQmlWindow, SIGNAL(mainToSub1ButtonSignal()),
-                     this,        SLOT(mainToSub1ButtonSlot()));
+    QObject::connect(mpQmlWindow, SIGNAL(folderCheckSignal(QString, QString)),
+                     this,        SLOT(folderCheckSlot(QString, QString)));
     QObject::connect(mpQmlWindow, SIGNAL(quitButtonSignal()),
                      this,        SLOT(quitButtonSlot()));
 
@@ -49,12 +54,36 @@ void MainClass::initialize(QGuiApplication& app)
     shuffleThread = std::make_unique<ShuffleThread>();
     shuffleThread->initialize(this);
 
+    invokeFolderNames(mpObj, folderName);
+
     mpApp = &app;
 }
 
-void MainClass::mainToSub1ButtonSlot() {
-    DEBUG_LOG("\n");
-    invokeFileNames(mpObj);
+void MainClass::folderCheckSlot(QString msg1, QString msg2)
+{
+    QTextCodec* codec = QTextCodec::codecForName("Shift-JIS");
+    QByteArray encoded = codec->fromUnicode(msg1);
+    std::filesystem::path folder = encoded.toStdString();
+
+    DEBUG_LOG("%s\n", msg1.toStdString().c_str());
+    if(false == std::filesystem::exists(folder)){
+        DEBUG_LOG("%s err\n", msg1.toStdString().c_str());
+        return;
+    }
+
+    QString foldername{};
+    if("." == msg2.toStdString()){
+        foldername = msg1;
+    }else if(".." == msg2.toStdString()){
+        folder = folder.parent_path();
+        foldername = codec->toUnicode(folder.string().c_str());
+        //DEBUG_LOG("%s\n", foldername.c_str());
+    }else{
+        foldername = msg1 + "\\" + msg2;
+        //DEBUG_LOG("%s\n", foldername.c_str());
+    }
+
+    invokeFolderNames(mpObj, foldername);
 }
 void MainClass::quitButtonSlot(){
     folderThread->quit();
@@ -88,29 +117,71 @@ void MainClass::sleepSlot(int msec)
     std::chrono::milliseconds(static_cast<long long>(msec));
 }
 
-void MainClass::folderSearchSlot(){
-    invokeFileNames(mpObj);
-}
-void MainClass::invokeFileNames(QObject* object){
+void MainClass::invokeFolderNames(QObject* object, QString& foldername)
+{
+    //DEBUG_LOG("%s\n", foldername.c_str());
 
-    //DEBUG_LOG("\n");
+    folderName = foldername;
+    QVariant qv = folderName;
 
-    std::vector<std::string>  vec;
-    getFiles(folderName, vec);
+    std::vector<QString>  folderNames{};
+    getFolders(folderName, folderNames);
 
     QVariantList qvlist;
-    for(int i=0; i<vec.size(); i++){
-        qvlist.push_back(vec[i].c_str());
+    for(int i=0; i<folderNames.size(); i++){
+        qvlist.push_back(folderNames[i]);
+    }
+    QMetaObject::invokeMethod((QObject*)object, "getFolderNames",
+            Q_ARG(QVariant, QVariant::fromValue(qv)),
+            Q_ARG(QVariant, QVariant::fromValue(qvlist)));
+}
+void MainClass::getFolders(const QString& folderName, std::vector<QString>& foldernames)
+{
+    foldernames.emplace_back(".");
+    foldernames.emplace_back("..");
+
+    QTextCodec *codec = QTextCodec::codecForName("Shift-JIS");
+    QByteArray encoded = codec->fromUnicode(folderName);
+
+    for (const std::filesystem::directory_entry& i : std::filesystem::directory_iterator(encoded.toStdString())) {
+        if (i.is_directory()) {
+            foldernames.emplace_back(codec->toUnicode(i.path().filename().string().c_str()));
+        }
+    }
+}
+void MainClass::invokeFileNames(QObject* object, QString& foldername){
+
+    //DEBUG_LOG("%s\n", foldername.c_str());
+
+    std::vector<QString>  fileNames;
+    getFiles(folderName, fileNames);
+
+    QVariantList qvlist;
+    for(int i=0; i<fileNames.size(); i++){
+        qvlist.push_back(fileNames[i]);
     }
     QMetaObject::invokeMethod((QObject*)object, "getFileNames",
             Q_ARG(QVariant, QVariant::fromValue(qvlist)));
 }
-void MainClass::getFiles(const std::string& st, std::vector<std::string>& vec){
-    for (const std::filesystem::directory_entry& i : std::filesystem::directory_iterator(st)) {
+void MainClass::getFiles(const QString& folderName, std::vector<QString>& fileNames)
+{
+    QTextCodec *codec = QTextCodec::codecForName("Shift-JIS");
+    QByteArray encoded = codec->fromUnicode(folderName);
+
+    for (const std::filesystem::directory_entry& i : std::filesystem::directory_iterator(encoded.toStdString())) {
         if (! i.is_directory()) {
-            vec.emplace_back(i.path().filename().string());
+            std::filesystem::path ex = i.path().extension();
+            if(ex == ".jpg" || ex == ".jpeg" || ex == ".png" || ex == ".gif"
+            || ex == ".JPG" || ex == ".JPEG" || ex == ".PNG" || ex == ".GIF")
+            {
+                fileNames.emplace_back(codec->toUnicode(i.path().filename().string().c_str()));
+            }
         }
     }
+}
+void MainClass::folderSearchSlot() {
+    //DEBUG_LOG("%s\n", folderName.c_str());
+    invokeFileNames(mpObj, folderName);
 }
 void MainClass::shufflePlaySlot(){
     QMetaObject::invokeMethod((QObject*)mpObj, "shufflePlay");
@@ -177,6 +248,6 @@ void ShuffleThread::setWaitTime(int waitTime){
 
 QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize& requestedSize){
 
-    QImage image(static_cast<QString>(folderName.c_str()) + "\\" + id);
+    QImage image(static_cast<QString>(folderName) + "\\" + id);
     return image;
 }

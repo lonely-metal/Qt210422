@@ -7,6 +7,7 @@
 #include <QQuickView>
 #include <QThread>
 #include <QTimer>
+#include <QTextCodec>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -27,13 +28,15 @@ public:
     explicit MainClass(QObject* parent=0);
     ~MainClass();
     void initialize(QGuiApplication& app);
-    void invokeFileNames(QObject* object);
-    void getFiles(const std::string& st, std::vector<std::string>& vec);
+    void invokeFolderNames(QObject* object, QString& foldername);
+    void invokeFileNames(QObject* object, QString& folderame);
+    void getFolders(const QString& folderName, std::vector<QString>& foldernames);
+    void getFiles(const QString& folderName, std::vector<QString>& filenames);
     QObject* getMainclassObject();
     void setMainclassObject(QObject* obj);
 
 public slots:
-    void mainToSub1ButtonSlot();
+    void folderCheckSlot(QString msg1, QString msg2);
     void quitButtonSlot();
     void setShuffleWaitTimeSlot(bool shuffleComboVisible, int shuffleWaitTime);
     void setShuffleWaitTimeRestartSlot(int shuffleWaitTime);
@@ -43,12 +46,13 @@ public slots:
     void shufflePlaySlot();
 
 private:
-    QGuiApplication*            mpApp;
-    QQmlApplicationEngine       mEngine;
-    QQuickWindow*               mpQmlWindow;
-    QObject*                    mpObj;
-    std::unique_ptr<FolderThread>       folderThread;
+    QGuiApplication*                mpApp;
+    QQmlApplicationEngine           mEngine;
+    QQuickWindow*                   mpQmlWindow;
+    QObject*                        mpObj;
+    std::unique_ptr<FolderThread>   folderThread;
     std::unique_ptr<ShuffleThread>  shuffleThread;
+    //QTextCodec*                     mpCodec;
 };
 
 class FolderThread : public QThread
@@ -73,7 +77,7 @@ public:
     void setWaitTime(int waitTime);
 
 private:
-    std::shared_ptr<MainClass>    mpMainclass;
+    std::shared_ptr<MainClass>  mpMainclass;
     int                         mWaitTime;
 };
 

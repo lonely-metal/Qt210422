@@ -14,7 +14,7 @@ Rectangle{
         x: 10; y: 10
         text: "Start"
         onClicked: {
-            mainToSub1ButtonSignal()
+            folderCheckSignal()
             rectangle1.state = "sub1State"
         }
     }

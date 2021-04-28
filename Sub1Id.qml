@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
-//import QtQuick.Layouts 2.12     // GridLayout // ‚±‚Ìimport‚É¸”s‚µ‚ÄA˜A“®‚µ‚ÄC++‘¤‚ÌmEngine.load(url);‚ª¸”s‚µ‚Ä‚½
+//import QtQuick.Layouts 2.12     // GridLayout // ã“ã®importã«å¤±æ•—ã—ã¦ã€é€£å‹•ã—ã¦C++å´ã®mEngine.load(url);ãŒå¤±æ•—ã—ã¦ãŸ
 import QtQuick.Layouts 1.12
 
 Rectangle {
@@ -11,31 +11,56 @@ Rectangle {
     state: "sub1State"
     color: backGroundColor
 
-    TextInput{
-        id: folderName
-        x:150; y:10
-        color: "#FFFFFF"
+    TextField{
+        id: textFieldId
+        x:10; y:10
+        width: 500; height: 30
+        color: folderNameTextColor
+        font.pixelSize: 20
+        text: folderName
+        /*
+        onAccepted:{
+            folderNameTextColor = "#000000"
+        }
+        */
+        onEditingFinished:{
+            console.log("TextField")
+            folderNameTextColor = "#000000"
+            folderSelectBlock = false
+            folderCheckSignal(textFieldId.text, folderNames[0])
+        }
     }
     Button{
         visible: false
         id: prevButtonToMain
-        x:10; y: 80
+        x:10; y: 50
         text: "Prev"
         onClicked: rectangle1.state = "mainState"
     }
     ComboBox{
-        id: folderSelect
-        x: 150; y: 80
+        id: folderSelectId
+        x: 10; y: 50
+        model: folderNames
+        onCurrentIndexChanged:{
+            console.log("ComboBox: folderCheckSignal " + currentIndex)
+            if(folderSelectBlock){
+                console.log("ComboBox: folderCheckSignal " + currentIndex)
+                folderSelectBlock = false
+                //imageLayoutVisible = false
+                //folderSelectCurrentIndex = currentIndex
+                folderCheckSignal(folderName, folderNames[currentIndex])
+            }
+        }
     }
     Button{
         id: nextButtonToSub2
         text: "Next"
-        x: 350; y: 80
+        x: 200; y: 50
         onClicked: rectangle1.state = "sub2State"
     }
     Button{
         id: quitButton
-        x: 1000; y: 80
+        x: 1000; y: 50
         text: "Quit"
         onClicked: {
             quitButtonSignal()
@@ -44,7 +69,8 @@ Rectangle {
 
     GridLayout{
         columns: windowWidth / 110
-        x:10; y:160
+        x:10; y:120
+        //visible: imageLayoutVisible
         Repeater{
             model: filesMax
             Rectangle{
@@ -56,7 +82,7 @@ Rectangle {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            fileNameKey = index     // ‚±‚±‚Åindex’l‚ğæ“¾o—ˆ‚é‚Ì‚ª‘f°‚ç‚µ‚¢I
+                            fileNameKey = index     // ã“ã“ã§indexå€¤ã‚’å–å¾—å‡ºæ¥ã‚‹ã®ãŒç´ æ™´ã‚‰ã—ã„ï¼
                             rectangle1.state = "sub2State"
                         }
                     }

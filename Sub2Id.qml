@@ -52,6 +52,7 @@ Rectangle {
         x: 450; y: 10
         model: fileNames
         onCurrentIndexChanged:{
+            console.log("ComboBox: shuffleCancel()")
             fileNameKey = currentIndex
             shuffleCancel()
         }
@@ -77,7 +78,7 @@ Rectangle {
         model: waitTimes
         onCurrentIndexChanged:{
             shuffleWaitTime = waitTimes[currentIndex]
-            console.log("shuffleWaitTime " + shuffleWaitTime)
+            console.log("ComboBox shuffleWaitTime " + shuffleWaitTime)
             setShuffleWaitTimeRestartSignal(shuffleWaitTime)
         }
     }
