@@ -70,13 +70,13 @@ Rectangle {
     GridLayout{
         columns: windowWidth / 110
         x:10; y:120
-        //visible: imageLayoutVisible
         Repeater{
             model: filesMax
             Rectangle{
                 width: 100; height: 50
                 //border.width: 30
                 Image{
+                    //visible: imageVisible
                     anchors.fill: parent
                     source: "image://imagedata/" + fileNames[index] ;
                     MouseArea{

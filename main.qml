@@ -15,6 +15,10 @@
 
   210428 16:35
   フォルダ選択、フォルダ名入力追加
+
+  210501 16:42
+  読み込むファイル数を300ファイルまでに制限
+  image画像表示領域を超えるサイズは縮小する
 */
 import QtQuick 2.12
 import QtQuick.Window 2.12
@@ -55,6 +59,7 @@ Window {
     signal sleepSignal(int msec)
 
     function getFolderNames(obj1, obj2){
+        imageVisible = false
         folderName = obj1
         foldersMax = obj2.length
         folderNames = obj2
@@ -79,6 +84,7 @@ Window {
         //console.log("filesMax: " + fileNames.length)
         //console.log(filesMax)
         imageVisible = true
+        console.log("filesMax:" + filesMax)
     }
     function shufflePlay() {
         fileNameKey = Math.random() * 100000 % filesMax   // Math.random()で返ってくる値は1未満の小数なので100000くらい掛けとく

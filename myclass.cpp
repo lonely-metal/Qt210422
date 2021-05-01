@@ -1,7 +1,8 @@
 #include "myclass.h"
 
 // ２つ以上のクラスで使用してるので、とりあえずここで定義
-QString folderName {"E:\\work\\dvlp\\Qt\\images"};
+QString folderName {"E:\\Work\\携帯で撮ったやつ"};
+//QString folderName {"E:\\work\\dvlp\\Qt\\images"};
 //QString folderName {"E:\\Work\\携帯で撮ったやつ\\130826"};
 //QString folderName {"F:\\Work\\Data\\とりあえず"};
 //QString folderName {"F:\\Work\\Data\\とりあえず。。。"};    // 。。。があるとビルドエラーになる
@@ -17,7 +18,7 @@ MainClass::~MainClass(){
 }
 void MainClass::initialize(QGuiApplication& app)
 {
-    DEBUG_LOG("MainClass start\n");
+    DEBUG_LOG("MainClass start id:%d\n", QThread::currentThreadId());
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&mEngine, &QQmlApplicationEngine::objectCreated,
@@ -48,10 +49,12 @@ void MainClass::initialize(QGuiApplication& app)
     mEngine.addImageProvider(QLatin1String("imagedata"),new ImageProvider);
 
     folderThread = std::make_unique<FolderThread>();
+    //moveToThread(folderThread.get());
     folderThread->initialize(this);
     folderThread->start();       //スレッドを開始させる．
 
     shuffleThread = std::make_unique<ShuffleThread>();
+    //moveToThread(shuffleThread.get());
     shuffleThread->initialize(this);
 
     invokeFolderNames(mpObj, folderName);
@@ -168,6 +171,7 @@ void MainClass::getFiles(const QString& folderName, std::vector<QString>& fileNa
     QTextCodec *codec = QTextCodec::codecForName("Shift-JIS");
     QByteArray encoded = codec->fromUnicode(folderName);
 
+    int count = 0;
     for (const std::filesystem::directory_entry& i : std::filesystem::directory_iterator(encoded.toStdString())) {
         if (! i.is_directory()) {
             std::filesystem::path ex = i.path().extension();
@@ -175,6 +179,10 @@ void MainClass::getFiles(const QString& folderName, std::vector<QString>& fileNa
             || ex == ".JPG" || ex == ".JPEG" || ex == ".PNG" || ex == ".GIF")
             {
                 fileNames.emplace_back(codec->toUnicode(i.path().filename().string().c_str()));
+                count++;
+                if(count >= 300){    // とりあえず300ファイルで切り上げる
+                    break;
+                }
             }
         }
     }
@@ -205,7 +213,7 @@ void FolderThread::initialize(MainClass* mainclass)
 }
 void FolderThread::run()
 {
-    DEBUG_LOG("FolderThread run() start\n");
+    DEBUG_LOG("FolderThread run() start id:%d\n", QThread::currentThreadId());
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), mpMainclass.get(), SLOT(folderSearchSlot()), Qt::DirectConnection);
@@ -229,7 +237,7 @@ void ShuffleThread::initialize(MainClass* mainclass)
 }
 void ShuffleThread::run()
 {
-    DEBUG_LOG("Shufflethread run() start\n");
+    DEBUG_LOG("Shufflethread run() start id:%d\n", QThread::currentThreadId());
 
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), mpMainclass.get(), SLOT(shufflePlaySlot()), Qt::DirectConnection);
@@ -249,5 +257,12 @@ void ShuffleThread::setWaitTime(int waitTime){
 QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize& requestedSize){
 
     QImage image(static_cast<QString>(folderName) + "\\" + id);
+    int height = image.height();
+    int width = image.width();
+    if(height > 800 || width > 1580)
+    {
+        QImage img = image.scaled(1580, 800, Qt::KeepAspectRatio);
+        return img;
+    }
     return image;
 }
