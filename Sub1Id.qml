@@ -68,17 +68,17 @@ Rectangle {
     }
 
     GridLayout{
-        columns: windowWidth / 110
+        columns: windowWidth / 170
         x:10; y:120
         Repeater{
             model: filesMax
             Rectangle{
-                width: 100; height: 50
+                width: 160; height: 90
                 //border.width: 30
                 Image{
                     //visible: imageVisible
                     anchors.fill: parent
-                    source: "image://imagedata/" + fileNames[index] ;
+                    source: "image://thumbnaildata/" + fileNames[index] ;
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {

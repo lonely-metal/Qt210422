@@ -91,4 +91,12 @@ public:
     virtual QImage requestImage(const QString &id, QSize *size, const QSize& requestedSize);
 };
 
+QT_BEGIN_NAMESPACE
+class ThumbnailProvider : public QQuickImageProvider
+{
+public:
+    ThumbnailProvider() :QQuickImageProvider(QQuickImageProvider::Image){}
+    virtual QImage requestImage(const QString &id, QSize *size, const QSize& requestedSize);
+};
+
 #endif // MYCLASS_H

@@ -1,11 +1,7 @@
 #include "myclass.h"
 
 // ２つ以上のクラスで使用してるので、とりあえずここで定義
-QString folderName {"E:\\Work\\携帯で撮ったやつ"};
-//QString folderName {"E:\\work\\dvlp\\Qt\\images"};
-//QString folderName {"E:\\Work\\携帯で撮ったやつ\\130826"};
-//QString folderName {"F:\\Work\\Data\\とりあえず"};
-//QString folderName {"F:\\Work\\Data\\とりあえず。。。"};    // 。。。があるとビルドエラーになる
+QString folderName {"E:\\work\\dvlp\\Qt\\images"};
 //std::string folderName {};
 
 MainClass::MainClass(QObject* parent)
@@ -47,6 +43,7 @@ void MainClass::initialize(QGuiApplication& app)
                      this,        SLOT(sleepSlot(int)));
 
     mEngine.addImageProvider(QLatin1String("imagedata"),new ImageProvider);
+    mEngine.addImageProvider(QLatin1String("thumbnaildata"),new ThumbnailProvider);
 
     folderThread = std::make_unique<FolderThread>();
     //moveToThread(folderThread.get());
@@ -262,6 +259,18 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize& 
     if(height > 800 || width > 1580)
     {
         QImage img = image.scaled(1580, 800, Qt::KeepAspectRatio);
+        return img;
+    }
+    return image;
+}
+QImage ThumbnailProvider::requestImage(const QString &id, QSize *size, const QSize& requestedSize){
+
+    QImage image(static_cast<QString>(folderName) + "\\" + id);
+    int height = image.height();
+    int width = image.width();
+    if(height > 90 || width > 160)
+    {
+        QImage img = image.scaled(160, 90, Qt::KeepAspectRatio);
         return img;
     }
     return image;
